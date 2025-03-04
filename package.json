@@ -1,0 +1,17 @@
+{
+  "name": "beev-homework",
+  "version": "1.0.0",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "build:backend": "pnpm --filter backend build",
+    "build:frontend": "pnpm --filter frontend build"
+  },
+  "license": "UNLICENSED",
+  "packageManager": "pnpm@8.14.0+sha1.bb42032ff80dba5f9245bc1b03470d2fa0b7fb2f",
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.5"
+  }
+}
