@@ -4,7 +4,7 @@ import './index.css'
 import App from './App.tsx'
 import { BrowserRouter, Route, Routes } from "react-router";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Version } from './pages/version.tsx';
+import { Version } from './pages/Version.tsx';
 
 const queryClient = new QueryClient()
 
