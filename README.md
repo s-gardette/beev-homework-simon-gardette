@@ -5,7 +5,7 @@
 Design and implement a small full-stack application to help fleet managers monitor their electric vehicle fleet's efficiency and environmental impact. This project should demonstrate your ability to create clean, well-organized code while solving real-world problems.
 
 ## Expected Solution
- - We are looking forward to a project that keeps the same project configuration, so please **do not split** your code into different projects
+ - We are looking forward to a project that keeps the provided organization, so please **do not split** your code into different projects
  - We expect a solution that will run without us having to do any modifications or debugging, make sure that your project **works from scratch**
  - The commands that are listed should be enough to launch the project and the seeder
  - **Important**: Focus on code quality over feature quantity. It's okay to mock some data or functionalities, but document any assumptions you make.
