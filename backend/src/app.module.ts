@@ -13,11 +13,10 @@ import { CacheModule } from '@nestjs/cache-manager';
     DatabaseModule,
     TypeOrmModule.forFeature([VersionEntity]),
     CacheModule.registerAsync({
-      useFactory: async () => {
+      useFactory: () => {
         return {
           stores: [
             new Keyv({
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
               store: new CacheableMemory({ lruSize: 5000 }),
             }),
             createKeyv('redis://localhost:6379'),
