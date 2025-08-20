@@ -7,6 +7,7 @@ import { VersionEntity } from './version.entity';
 import { Keyv, createKeyv } from '@keyv/redis';
 import { CacheableMemory } from 'cacheable';
 import { CacheModule } from '@nestjs/cache-manager';
+import { VehicleModule } from './vehicle/vehicle.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { CacheModule } from '@nestjs/cache-manager';
         };
       },
     }),
+    VehicleModule,
   ],
   controllers: [AppController],
   providers: [AppService],
