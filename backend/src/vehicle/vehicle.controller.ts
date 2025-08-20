@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { VehicleService } from './vehicle.service';
 import { Vehicle, VehicleStatusEnum } from './vehicle.entities';
+import { CreateVehicleDto } from './dto/vehicle.dto';
 
 @Controller('vehicles')
 export class VehicleController {
@@ -30,8 +31,8 @@ export class VehicleController {
   }
 
   @Post()
-  async create(@Body() vehicleData: Partial<Vehicle>): Promise<Vehicle> {
-    return this.vehicleService.create(vehicleData);
+  async create(@Body() vehicleData: CreateVehicleDto): Promise<Vehicle> {
+    return this.vehicleService.create(vehicleData as Partial<Vehicle>);
   }
 
   @Put(':id')

@@ -4,6 +4,7 @@ packages:
   - frontend
 
 onlyBuiltDependencies:
+  - '@nestjs/core'
   - '@tailwindcss/oxide'
   - esbuild
   - unrs-resolver
