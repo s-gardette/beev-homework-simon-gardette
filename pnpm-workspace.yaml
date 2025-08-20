@@ -1,4 +1,9 @@
 packages:
-  - '.' 
-  - 'backend'
-  - 'frontend'
+  - .
+  - backend
+  - frontend
+
+onlyBuiltDependencies:
+  - '@tailwindcss/oxide'
+  - esbuild
+  - unrs-resolver
