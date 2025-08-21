@@ -2,17 +2,16 @@ import { Outlet } from "react-router";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { PageProvider, usePageContext } from "./PageContext.tsx";
+import { Heading } from "../ui/headings";
 
 function LayoutContent() {
     const { heading } = usePageContext();
 
     return (
-        <div className="layout dark">
+        <div className="layout dark:dark bg-primary text-secondary ">
             <Header />
-            <main className="bg-primary text-secondary relative min-h-screen">
-                {heading ? (
-                    <h1 className="p-4 text-xl font-semibold">{heading}</h1>
-                ) : null}
+            <main className="relative container mx-auto min-h-screen content-center px-4">
+                {heading && <Heading as="h1">{heading}</Heading>}
                 <Outlet />
             </main>
             <Footer />
