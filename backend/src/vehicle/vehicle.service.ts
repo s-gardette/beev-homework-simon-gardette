@@ -20,16 +20,18 @@ export class VehicleService {
   ): Promise<Vehicle[]> {
     const qb = this.vehicleRepository
       .createQueryBuilder('vehicle')
-      .leftJoinAndSelect('vehicle.vehicleBrand', 'brand')
-      .leftJoinAndSelect('vehicle.vehicleModel', 'model')
+  .leftJoinAndSelect('vehicle.brand', 'brand')
+  .leftJoinAndSelect('vehicle.model', 'model')
       .leftJoinAndSelect('vehicle.vehicleStatus', 'status');
 
     if (brandId) {
-      qb.andWhere('vehicle.vehicleBrandId = :brandId', { brandId: brandId });
+  // filter by joined brand id
+  qb.andWhere('brand.id = :brandId', { brandId });
     }
 
     if (modelId) {
-      qb.andWhere('model.name = :model', { modelId: modelId });
+  // filter by joined model id
+  qb.andWhere('model.id = :modelId', { modelId });
     }
 
     if (status) {
