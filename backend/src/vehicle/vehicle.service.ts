@@ -25,11 +25,11 @@ export class VehicleService {
       .leftJoinAndSelect('vehicle.vehicleStatus', 'status');
 
     if (brandId) {
-      qb.andWhere('vehicle.vehicleBrandId = :brandId', { brandId });
+      qb.andWhere('vehicle.vehicleBrandId = :brandId', { brand: brandId });
     }
 
     if (modelId) {
-      qb.andWhere('model.name = :model', { modelId });
+      qb.andWhere('model.name = :model', { model: modelId });
     }
 
     if (status) {
