@@ -29,7 +29,7 @@ export class AnalyticsController {
     status: 200,
     description: 'Brand analytics',
     type: BrandAnalyticsView,
-    isArray: false,
+    isArray: true,
   })
   async getBrandAnalytics(): Promise<BrandAnalyticsView[]> {
     return this.analyticsService.getBrandAnalytics();
@@ -44,7 +44,7 @@ export class AnalyticsController {
     status: 200,
     description: 'Model efficiency list',
     type: ModelEfficiencyView,
-    isArray: false,
+    isArray: true,
   })
   async getFleetEfficiency(): Promise<ModelEfficiencyView[]> {
     return this.analyticsService.getFleetEfficiency();
@@ -59,7 +59,7 @@ export class AnalyticsController {
     status: 200,
     description: 'Emissions by drive type',
     type: EmissionsByDriveTypeView,
-    isArray: false,
+    isArray: true,
   })
   async getFleetEmissions(): Promise<EmissionsByDriveTypeView[]> {
     return this.analyticsService.getEmissionsByDriveType();
@@ -74,7 +74,7 @@ export class AnalyticsController {
     status: 200,
     description: 'Fleet composition',
     type: FleetCompositionView,
-    isArray: false,
+    isArray: true,
   })
   async getFleetComposition(): Promise<FleetCompositionView[]> {
     return this.analyticsService.getFleetComposition();
@@ -91,7 +91,7 @@ export class AnalyticsController {
     type: FleetOperationalView,
     isArray: false,
   })
-  async getFleetOperational(): Promise<FleetOperationalView[]> {
+  async getFleetOperational(): Promise<FleetOperationalView | null> {
     return this.analyticsService.getFleetOperational();
   }
 

@@ -44,7 +44,8 @@ export class AnalyticsService {
     return this.compositionRepo.find();
   }
 
-  async getFleetOperational(): Promise<FleetOperationalView[]> {
-    return this.operationalRepo.find();
+  async getFleetOperational(): Promise<FleetOperationalView | null> {
+    const rows = await this.operationalRepo.find();
+    return rows.length ? rows[0] : null;
   }
 }
