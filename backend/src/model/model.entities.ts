@@ -33,7 +33,7 @@ export class Model extends BaseEntity {
   emissionGCO2: number; // in gCO2/km
 
   @Column({
-    type: 'enum',
+    type: 'simple-enum',
     enum: TypeEnum,
     default: TypeEnum.BEV,
   })

@@ -49,7 +49,7 @@ export class VehicleStatus extends BaseEntity {
   currentChargeLevel: number;
 
   @Column({
-    type: 'enum',
+    type: 'simple-enum',
     enum: VehicleStatusEnum,
     default: VehicleStatusEnum.Available,
   })
