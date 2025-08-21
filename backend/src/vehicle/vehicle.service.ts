@@ -25,11 +25,11 @@ export class VehicleService {
       .leftJoinAndSelect('vehicle.vehicleStatus', 'status');
 
     if (brandId) {
-      qb.andWhere('vehicle.vehicleBrandId = :brandId', { brand: brandId });
+      qb.andWhere('vehicle.vehicleBrandId = :brandId', { brandId: brandId });
     }
 
     if (modelId) {
-      qb.andWhere('model.name = :model', { model: modelId });
+      qb.andWhere('model.name = :model', { modelId: modelId });
     }
 
     if (status) {
@@ -58,27 +58,20 @@ export class VehicleService {
     };
 
     let vehicle = this.vehicleRepository.create(rest as Partial<Vehicle>);
-
-    // First we save the vehicle to get an Id (necessary for relations)
+    // save to obtain id and persist basic vehicle
     vehicle = await this.vehicleRepository.save(vehicle);
 
-    // If vehicule status infos are proveded then when create a new status
+    // Optionally create a linked VehicleStatus when inline status provided
     if (vehicleStatus !== undefined && vehicleStatus !== null) {
       const newStatus = this.vehicleStatusRepository.create({
         currentChargeLevel: vehicleStatus.currentChargeLevel ?? 0,
         status: vehicleStatus.status ?? VehicleStatusEnum.Available,
-        // link by id only to avoid cascading updates
         vehicle: { id: vehicle.id } as unknown as Vehicle,
       });
-      const savedStatus = await this.vehicleStatusRepository.save(newStatus);
-      vehicle.vehicleStatus = savedStatus;
-      const full = await this.vehicleRepository.findOne({
-        where: { id: vehicle.id },
-        relations: ['brand', 'model', 'vehicleStatus'],
-      });
-      return full!;
+      await this.vehicleStatusRepository.save(newStatus);
     }
 
+    // return the full vehicle with relations loaded
     const full = await this.vehicleRepository.findOne({
       where: { id: vehicle.id },
       relations: ['brand', 'model', 'vehicleStatus'],

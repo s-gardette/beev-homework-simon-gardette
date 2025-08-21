@@ -84,7 +84,7 @@ export class CreateVehicleDto {
   })
   @IsUUID()
   @IsNotEmpty()
-  vehicleBrandId: string;
+  brandId: string;
 
   @ApiProperty({
     description: 'Vehicle model id (uuid)',
@@ -93,7 +93,7 @@ export class CreateVehicleDto {
   })
   @IsUUID()
   @IsNotEmpty()
-  vehicleModelId: string;
+  modelId: string;
 
   @ApiProperty({
     description:
