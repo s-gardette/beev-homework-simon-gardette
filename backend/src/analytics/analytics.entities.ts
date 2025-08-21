@@ -10,11 +10,20 @@ import { Brand } from '@/brand/brand.entities';
       .select('brand.id', 'brandId')
       .addSelect('brand.name', 'brandName')
       // average current charge level from vehicle status (e.g. percent)
-      .addSelect('AVG(vehicleStatus.currentChargeLevel)', 'averageCharge')
+      .addSelect(
+        'AVG(vehicleStatus.currentChargeLevel)::NUMERIC(10,2)',
+        'averageCharge',
+      )
       // average of model averageConsumption (Wh/km)
-      .addSelect('AVG(model.averageConsumption)', 'averageConsumption')
+      .addSelect(
+        'AVG(model.averageConsumption)::NUMERIC(10,2)',
+        'averageConsumption',
+      )
       // average battery capacity (kWh)
-      .addSelect('AVG(model.batteryCapacity)', 'averageBatteryCapacity')
+      .addSelect(
+        'AVG(model.batteryCapacity)::NUMERIC(10,2)',
+        'averageBatteryCapacity',
+      )
       // number of vehicles considered
       .addSelect('COUNT(vehicle.id)', 'vehiclesCount')
       .from(Vehicle, 'vehicle')
@@ -57,8 +66,14 @@ export class BrandAnalyticsView {
       .createQueryBuilder()
       .select('model.id', 'modelId')
       .addSelect('model.name', 'modelName')
-      .addSelect('AVG(model.averageConsumption)', 'avgConsumption')
-      .addSelect('AVG(model.batteryCapacity)', 'avgBatteryCapacity')
+      .addSelect(
+        'AVG(model.averageConsumption)::NUMERIC(10,2)',
+        'avgConsumption',
+      )
+      .addSelect(
+        'AVG(model.batteryCapacity)::NUMERIC(10,2)',
+        'avgBatteryCapacity',
+      )
       .addSelect('COUNT(vehicle.id)', 'vehiclesCount')
       .from(Vehicle, 'vehicle')
       .leftJoin(Model, 'model', 'vehicle.model = model.id')
@@ -87,7 +102,7 @@ export class ModelEfficiencyView {
     dataSource
       .createQueryBuilder()
       .select('model.Type', 'type')
-      .addSelect('AVG(model.emissionGCO2)', 'avgEmission')
+      .addSelect('AVG(model.emissionGCO2)::NUMERIC(10,2)', 'avgEmission')
       .addSelect('COUNT(vehicle.id)', 'vehiclesCount')
       .from(Vehicle, 'vehicle')
       .leftJoin(Model, 'model', 'vehicle.model = model.id')
