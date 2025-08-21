@@ -11,6 +11,7 @@ import { VehicleModule } from './vehicle/vehicle.module';
 import { ModelModule } from './model/model.module';
 import { BrandModule } from './brand/brand.module';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { BatchModule } from './batch/batch.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
     ModelModule,
     VehicleModule,
     AnalyticsModule,
+    BatchModule,
   ],
   controllers: [AppController],
   providers: [AppService],
