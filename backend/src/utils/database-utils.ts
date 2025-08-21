@@ -1,13 +1,15 @@
 import { Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
+// Use DB-agnostic date columns — omit explicit `timestamptz` so TypeORM
+// picks an appropriate type for the active driver (Postgres, SQLite, ...)
 export abstract class BaseEntity {
-  @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
+  @CreateDateColumn()
   createdAt: Date;
 
   @Column({ type: 'varchar', length: 300, nullable: true })
   createdBy: string;
 
-  @UpdateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
+  @UpdateDateColumn()
   updatedAt: Date;
 
   @Column({ type: 'varchar', length: 300, nullable: true })
