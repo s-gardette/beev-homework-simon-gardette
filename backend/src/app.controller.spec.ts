@@ -1,14 +1,31 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { getRepositoryToken } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { VersionEntity } from './version.entity';
 
 describe('AppController', () => {
   let appController: AppController;
 
   beforeEach(async () => {
+    const mockRepo = {
+      findOne: jest.fn(),
+      save: jest.fn(),
+    };
+
     const app: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
-      providers: [AppService],
+      providers: [
+        AppService,
+        {
+          provide: getRepositoryToken(VersionEntity),
+          useValue: mockRepo,
+        },
+        {
+          provide: 'CACHE_MANAGER',
+          useValue: {},
+        },
+      ],
     }).compile();
 
     appController = app.get<AppController>(AppController);
