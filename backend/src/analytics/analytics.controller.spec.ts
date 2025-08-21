@@ -18,6 +18,7 @@ describe('AnalyticsController', () => {
     getEmissionsByDriveType: jest.fn(),
     getFleetComposition: jest.fn(),
     getFleetOperational: jest.fn(),
+    clearCache: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -69,5 +70,11 @@ describe('AnalyticsController', () => {
     const res = await controller.getFleetOperational();
     expect(res).toBe(data);
     expect(mockService.getFleetOperational).toHaveBeenCalled();
+  });
+
+  it('clearCache calls cache manager clear', async () => {
+    const clearSpy = jest.spyOn(mockService, 'clearCache');
+    await controller.clearCache();
+    expect(clearSpy).toHaveBeenCalled();
   });
 });

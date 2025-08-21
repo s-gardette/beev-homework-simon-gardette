@@ -1,7 +1,9 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Post, Inject } from '@nestjs/common';
 import { CacheTTL } from '@nestjs/cache-manager';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AnalyticsService } from './analytics.service';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
 import {
   BrandAnalyticsView,
   ModelEfficiencyView,
@@ -13,7 +15,10 @@ import {
 @ApiTags('analytics')
 @Controller('analytics')
 export class AnalyticsController {
-  constructor(private readonly analyticsService: AnalyticsService) {}
+  constructor(
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    private readonly analyticsService: AnalyticsService,
+  ) {}
 
   @Get('brands')
   @CacheTTL(1000 * 60 * 5) // Cache for 5 minutes
@@ -24,7 +29,7 @@ export class AnalyticsController {
     status: 200,
     description: 'Brand analytics',
     type: BrandAnalyticsView,
-    isArray: true,
+    isArray: false,
   })
   async getBrandAnalytics(): Promise<BrandAnalyticsView[]> {
     return this.analyticsService.getBrandAnalytics();
@@ -39,7 +44,7 @@ export class AnalyticsController {
     status: 200,
     description: 'Model efficiency list',
     type: ModelEfficiencyView,
-    isArray: true,
+    isArray: false,
   })
   async getFleetEfficiency(): Promise<ModelEfficiencyView[]> {
     return this.analyticsService.getFleetEfficiency();
@@ -54,7 +59,7 @@ export class AnalyticsController {
     status: 200,
     description: 'Emissions by drive type',
     type: EmissionsByDriveTypeView,
-    isArray: true,
+    isArray: false,
   })
   async getFleetEmissions(): Promise<EmissionsByDriveTypeView[]> {
     return this.analyticsService.getEmissionsByDriveType();
@@ -69,7 +74,7 @@ export class AnalyticsController {
     status: 200,
     description: 'Fleet composition',
     type: FleetCompositionView,
-    isArray: true,
+    isArray: false,
   })
   async getFleetComposition(): Promise<FleetCompositionView[]> {
     return this.analyticsService.getFleetComposition();
@@ -84,9 +89,18 @@ export class AnalyticsController {
     status: 200,
     description: 'Fleet operational metrics',
     type: FleetOperationalView,
-    isArray: true,
+    isArray: false,
   })
   async getFleetOperational(): Promise<FleetOperationalView[]> {
     return this.analyticsService.getFleetOperational();
+  }
+
+  @Post('cache/clear')
+  @ApiOperation({ summary: 'Clear analytics cache' })
+  @ApiResponse({ status: 200, description: 'Cache cleared' })
+  async clearCache(): Promise<{ ok: boolean }> {
+    // clear the underlying cache store (typed)
+    await this.cacheManager.clear();
+    return { ok: true };
   }
 }
