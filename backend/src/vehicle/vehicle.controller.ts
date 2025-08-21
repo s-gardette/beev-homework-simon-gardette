@@ -17,8 +17,12 @@ import {
   ApiBody,
 } from '@nestjs/swagger';
 import { VehicleService } from './vehicle.service';
-import { Vehicle, VehicleStatusEnum } from './vehicle.entities';
-import { CreateVehicleDto, UpdateVehicleDto } from './dto/vehicle.dto';
+import { Vehicle, VehicleStatusEnum, VehicleStatus } from './vehicle.entities';
+import {
+  CreateVehicleDto,
+  UpdateVehicleDto,
+  UpdateVehicleStatusDto,
+} from './dto/vehicle.dto';
 
 @ApiTags('vehicles')
 @Controller('vehicles')
@@ -110,5 +114,24 @@ export class VehicleController {
   })
   async delete(@Param('id') id: string): Promise<void> {
     return this.vehicleService.delete(id);
+  }
+
+  @Put(':id/status')
+  @ApiOperation({ summary: "Update or create a vehicle's status" })
+  @ApiParam({ name: 'id', description: 'Vehicle id (uuid)' })
+  @ApiBody({ type: UpdateVehicleStatusDto })
+  @ApiResponse({
+    status: 200,
+    description: "The vehicle's status",
+    type: VehicleStatus,
+  })
+  async updateStatus(
+    @Param('id') id: string,
+    @Body() statusData: UpdateVehicleStatusDto,
+  ): Promise<VehicleStatus | null> {
+    return this.vehicleService.updateStatus(
+      id,
+      statusData as Partial<VehicleStatus>,
+    );
   }
 }

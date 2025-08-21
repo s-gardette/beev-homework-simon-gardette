@@ -3,11 +3,13 @@ import {
   Column,
   PrimaryGeneratedColumn,
   ManyToOne,
-  OneToMany,
   OneToOne,
   Relation,
+  JoinColumn,
 } from 'typeorm';
 import { BaseEntity } from '@/utils/database-utils';
+import { Brand } from '@/brand/brand.entities';
+import { Model } from '@/model/model.entities';
 
 export enum VehicleStatusEnum {
   InUse = 'in_use',
@@ -15,27 +17,22 @@ export enum VehicleStatusEnum {
   Charging = 'charging',
 }
 
-export enum VehicleTypeEnum {
-  BEV = 'BEV', // Battery Electric Vehicle
-  ICE = 'ICE', // Internal Combustion Engine
-}
-
 @Entity()
 export class Vehicle extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ length: 500 })
+  @Column({ type: 'uuid', nullable: true })
+  externalId: string | null;
+
+  @Column({ length: 200 })
   name: string;
 
-  @Column({ type: 'int' })
-  views: number;
+  @ManyToOne(() => Brand, (brand) => brand.vehicles)
+  brand: Relation<Brand>;
 
-  @ManyToOne(() => VehicleBrand, (vehicleBrand) => vehicleBrand.vehicles)
-  vehicleBrand: Relation<VehicleBrand>;
-
-  @ManyToOne(() => VehicleModel, (vehicleModel) => vehicleModel.vehicles)
-  vehicleModel: Relation<VehicleModel>;
+  @ManyToOne(() => Model, (model) => model.vehicles)
+  model: Relation<Model>;
 
   @OneToOne(() => VehicleStatus, (vehicleStatus) => vehicleStatus.vehicle, {
     eager: true,
@@ -58,52 +55,8 @@ export class VehicleStatus extends BaseEntity {
   })
   status: VehicleStatusEnum;
 
+  // Make VehicleStatus the owning side of the relation by defining the join column here
   @OneToOne(() => Vehicle, (vehicle) => vehicle.vehicleStatus)
+  @JoinColumn()
   vehicle: Relation<Vehicle>;
-}
-
-@Entity()
-export class VehicleBrand extends BaseEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
-  @Column({ length: 100 })
-  name: string;
-
-  @OneToMany(() => Vehicle, (vehicle) => vehicle.vehicleBrand)
-  vehicles: Relation<Vehicle[]>;
-
-  @OneToMany(() => VehicleModel, (model) => model.modelBrand)
-  vehicleModels: Relation<VehicleModel[]>;
-}
-
-@Entity()
-export class VehicleModel extends BaseEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
-  @Column({ length: 100 })
-  name: string;
-
-  @Column({ type: 'int' })
-  batteryCapacity: number; // in kWh
-
-  @Column({ type: 'int' })
-  averageConsumption: number; // in Wh/km
-
-  @Column({ type: 'int' })
-  emissionGCO2: number; // in gCO2/km
-
-  @Column({
-    type: 'enum',
-    enum: VehicleTypeEnum,
-    default: VehicleTypeEnum.BEV,
-  })
-  vehicleType: VehicleTypeEnum;
-
-  @ManyToOne(() => VehicleBrand, (vehicleBrand) => vehicleBrand.vehicleModels)
-  modelBrand: Relation<VehicleBrand>;
-
-  @OneToMany(() => Vehicle, (vehicle) => vehicle.vehicleModel)
-  vehicles: Relation<Vehicle>[];
 }
