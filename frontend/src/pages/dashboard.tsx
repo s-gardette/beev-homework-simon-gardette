@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import { usePageContext } from "@/components/layout/PageContext";
 
+import { FleetStatus } from "@/components/FleetStatus";
+
 export function Dashboard() {
     const { setHeading } = usePageContext();
 
@@ -9,5 +11,9 @@ export function Dashboard() {
         return () => setHeading("");
     }, [setHeading]);
 
-    return <div className="dashboard dark"></div>;
+    return (
+        <div className="dashboard space-y-6">
+            <FleetStatus />
+        </div>
+    );
 }
