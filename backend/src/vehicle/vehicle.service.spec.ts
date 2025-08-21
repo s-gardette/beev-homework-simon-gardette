@@ -5,11 +5,6 @@ import { VehicleService } from './vehicle.service';
 import { Vehicle, VehicleStatus, VehicleStatusEnum } from './vehicle.entities';
 // The test uses untyped jest mocks which trip several `@typescript-eslint/no-unsafe-*` rules.
 // Disable those rules for this file only. Prefer strongly-typed mocks as a long-term fix.
-/* eslint-disable @typescript-eslint/no-unsafe-assignment,
-  @typescript-eslint/no-unsafe-member-access,
-  @typescript-eslint/no-unsafe-call,
-  @typescript-eslint/no-unsafe-return,
-  @typescript-eslint/no-unsafe-argument */
 
 describe('VehicleService (unit)', () => {
   let service: VehicleService;
@@ -185,10 +180,9 @@ describe('VehicleService (unit)', () => {
     const qb = mockVehicleRepo.createQueryBuilder();
     // call findAll with a brandId
     await service.findAll('BRAND-123');
-    expect(qb.andWhere).toHaveBeenCalledWith(
-      'vehicle.vehicleBrandId = :brandId',
-      { brandId: 'BRAND-123' },
-    );
+    expect(qb.andWhere).toHaveBeenCalledWith('brand.id = :brandId', {
+      brandId: 'BRAND-123',
+    });
   });
 
   it('create without inline vehicleStatus does not create status', async () => {
