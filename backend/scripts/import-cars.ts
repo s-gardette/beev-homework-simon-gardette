@@ -1,5 +1,4 @@
 import { NestFactory } from '@nestjs/core';
-import { DataSource } from 'typeorm';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { AppModule } from '../src/app.module';
