@@ -18,6 +18,7 @@ import {
 import { BrandService } from './brand.service';
 import { Brand } from './brand.entities';
 import { CreateBrandDto } from './dto/brand.dto';
+import { CacheTTL } from '@nestjs/cache-manager';
 
 @ApiTags('brands')
 @Controller('brands')
@@ -25,6 +26,7 @@ export class BrandController {
   constructor(private readonly brandService: BrandService) {}
 
   @Get()
+  @CacheTTL(1000 * 60 * 3600) // Cache for 1 day
   @ApiOperation({ summary: 'List vehicle brands' })
   @ApiResponse({
     status: 200,

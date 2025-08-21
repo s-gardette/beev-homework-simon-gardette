@@ -1,4 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
+import { CacheTTL } from '@nestjs/cache-manager';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AnalyticsService } from './analytics.service';
 import {
@@ -15,6 +16,7 @@ export class AnalyticsController {
   constructor(private readonly analyticsService: AnalyticsService) {}
 
   @Get('brands')
+  @CacheTTL(1000 * 60 * 5) // Cache for 5 minutes
   @ApiOperation({
     summary: 'Get brand analytics (avg charge, consumption, battery capacity)',
   })
@@ -32,6 +34,7 @@ export class AnalyticsController {
   @ApiOperation({
     summary: 'Get fleet efficiency and emissions',
   })
+  @CacheTTL(1000 * 60 * 5) // Cache for 5 minutes
   @ApiResponse({
     status: 200,
     description: 'Model efficiency list',
@@ -43,6 +46,7 @@ export class AnalyticsController {
   }
 
   @Get('fleet-emissions')
+  @CacheTTL(1000 * 60 * 5) // Cache for 5 minutes
   @ApiOperation({
     summary: 'Get emissions comparison between BEV and ICE',
   })
@@ -57,6 +61,7 @@ export class AnalyticsController {
   }
 
   @Get('fleet-composition')
+  @CacheTTL(1000 * 60 * 120) // Cache for 2 Hours
   @ApiOperation({
     summary: 'Get fleet composition BEV vs ICE',
   })
@@ -71,6 +76,7 @@ export class AnalyticsController {
   }
 
   @Get('fleet-operational')
+  @CacheTTL(1000 * 60 * 1) // Cache for 1 minutes
   @ApiOperation({
     summary: 'Get fleet operational metrics (availability, charging, in use)',
   })

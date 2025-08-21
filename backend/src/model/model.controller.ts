@@ -18,6 +18,7 @@ import {
 import { ModelService } from './model.service';
 import { Model } from './model.entities';
 import { CreateModelDto } from './dto/model.dto';
+import { CacheTTL } from '@nestjs/cache-manager';
 
 @ApiTags('models')
 @Controller('models')
@@ -25,6 +26,7 @@ export class ModelController {
   constructor(private readonly modelService: ModelService) {}
 
   @Get()
+  @CacheTTL(1000 * 60 * 3600) // Cache for 1 day
   @ApiOperation({ summary: 'List vehicle models' })
   @ApiResponse({
     status: 200,
