@@ -1,0 +1,32 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Docker: compose logs - follow",
+            "type": "shell",
+            "command": "docker compose logs -f",
+            "problemMatcher": [],
+            "isBackground": true,
+            "runOptions": { "runOn": "folderOpen" },
+            "presentation": { "reveal": "always", "panel": "dedicated" }
+        },
+        {
+            "label": "PNPM: dev:backend",
+            "type": "shell",
+            "command": "pnpm run dev:backend",
+            "problemMatcher": [],
+            "isBackground": true,
+            "runOptions": { "runOn": "folderOpen" },
+            "presentation": { "reveal": "always", "panel": "dedicated" }
+        },
+        {
+            "label": "PNPM: dev:frontend",
+            "type": "shell",
+            "command": "pnpm run dev:frontend",
+            "problemMatcher": [],
+            "isBackground": true,
+            "runOptions": { "runOn": "folderOpen" },
+            "presentation": { "reveal": "always", "panel": "dedicated" }
+        }
+    ]
+}
