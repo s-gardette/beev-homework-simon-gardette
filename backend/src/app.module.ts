@@ -8,12 +8,16 @@ import { Keyv, createKeyv } from '@keyv/redis';
 import { CacheableMemory } from 'cacheable';
 import { CacheModule } from '@nestjs/cache-manager';
 import { VehicleModule } from './vehicle/vehicle.module';
+import { ModelModule } from './model/model.module';
+import { BrandModule } from './brand/brand.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
   imports: [
     DatabaseModule,
     TypeOrmModule.forFeature([VersionEntity]),
     CacheModule.registerAsync({
+      isGlobal: true,
       useFactory: () => {
         return {
           stores: [
@@ -25,7 +29,10 @@ import { VehicleModule } from './vehicle/vehicle.module';
         };
       },
     }),
+    BrandModule,
+    ModelModule,
     VehicleModule,
+    AnalyticsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
