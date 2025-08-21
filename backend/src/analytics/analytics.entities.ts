@@ -9,33 +9,18 @@ import { Brand } from '@/brand/brand.entities';
       .createQueryBuilder()
       .select('brand.id', 'brandId')
       .addSelect('brand.name', 'brandName')
-      // average current charge level from vehicle status (e.g. percent)
-      .addSelect(
-        'AVG(vehicleStatus.currentChargeLevel)::NUMERIC(10,2)',
-        'averageCharge',
-      )
-      // average of model averageConsumption (Wh/km)
-      .addSelect(
-        'AVG(model.averageConsumption)::NUMERIC(10,2)',
-        'averageConsumption',
-      )
-      // average battery capacity (kWh)
-      .addSelect(
-        'AVG(model.batteryCapacity)::NUMERIC(10,2)',
-        'averageBatteryCapacity',
-      )
+      .addSelect('AVG(vehicleStatus.currentChargeLevel)', 'averageCharge')
+      .addSelect('AVG(model.averageConsumption)', 'averageConsumption')
+      .addSelect('AVG(model.batteryCapacity)', 'averageBatteryCapacity')
       // number of vehicles considered
       .addSelect('COUNT(vehicle.id)', 'vehiclesCount')
       .from(Vehicle, 'vehicle')
-      // left join vehicle status (one-to-one)
       .leftJoin(
         VehicleStatus,
         'vehicleStatus',
         'vehicleStatus.vehicle = vehicle.id',
       )
-      // left join model referenced by vehicle
       .leftJoin(Model, 'model', 'vehicle.model = model.id')
-      // left join brand referenced by vehicle (grouping key)
       .leftJoin(Brand, 'brand', 'vehicle.brand = brand.id')
       .groupBy('brand.id')
       .addGroupBy('brand.name'),
@@ -66,14 +51,8 @@ export class BrandAnalyticsView {
       .createQueryBuilder()
       .select('model.id', 'modelId')
       .addSelect('model.name', 'modelName')
-      .addSelect(
-        'AVG(model.averageConsumption)::NUMERIC(10,2)',
-        'avgConsumption',
-      )
-      .addSelect(
-        'AVG(model.batteryCapacity)::NUMERIC(10,2)',
-        'avgBatteryCapacity',
-      )
+      .addSelect('AVG(model.averageConsumption)', 'avgConsumption')
+      .addSelect('AVG(model.batteryCapacity)', 'avgBatteryCapacity')
       .addSelect('COUNT(vehicle.id)', 'vehiclesCount')
       .from(Vehicle, 'vehicle')
       .leftJoin(Model, 'model', 'vehicle.model = model.id')
@@ -102,7 +81,7 @@ export class ModelEfficiencyView {
     dataSource
       .createQueryBuilder()
       .select('model.Type', 'type')
-      .addSelect('AVG(model.emissionGCO2)::NUMERIC(10,2)', 'avgEmission')
+      .addSelect('AVG(model.emissionGCO2)', 'avgEmission')
       .addSelect('COUNT(vehicle.id)', 'vehiclesCount')
       .from(Vehicle, 'vehicle')
       .leftJoin(Model, 'model', 'vehicle.model = model.id')
