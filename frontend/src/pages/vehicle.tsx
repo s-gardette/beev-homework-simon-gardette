@@ -15,6 +15,7 @@ import {
 import { StatusBadge } from "@/components/StatusBadge";
 import { ChargeLevel } from "@/components/ChargeLevel";
 import { NotFound } from "./404.tsx";
+import { fetchOrThrow } from "@/lib/utils.ts";
 
 export function Vehicle() {
     const { id } = useParams<{ id: string }>();
@@ -22,7 +23,8 @@ export function Vehicle() {
 
     const { data, isLoading, error } = useQuery({
         queryKey: ["vehicle", id],
-        queryFn: () => fetch(`/api/vehicles/${id}`).then((res) => res.json()),
+        queryFn: () =>
+            fetchOrThrow(`/api/vehicles/${id}`).then((res) => res.json()),
         enabled: Boolean(id),
     });
 
@@ -32,8 +34,6 @@ export function Vehicle() {
         setHeading(vehicle ? vehicle.name || "No vehicule" : "No vehicule");
         return () => setHeading("");
     }, [setHeading, vehicle]);
-
-    // status badge will render a small labeled badge for the vehicle status
 
     const formatDate = (iso?: string | null) =>
         iso ? new Date(iso).toLocaleString() : "—";
