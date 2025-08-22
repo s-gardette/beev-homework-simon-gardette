@@ -39,7 +39,9 @@ export class Model extends BaseEntity {
   })
   Type: TypeEnum;
 
-  @ManyToOne(() => Brand, (brand) => brand.models)
+  @ManyToOne(() => Brand, (brand) => brand.models, {
+    eager: true,
+  })
   Brand: Relation<Brand>;
 
   @OneToMany(() => Vehicle, (vehicle) => vehicle.model)

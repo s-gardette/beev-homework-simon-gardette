@@ -1,8 +1,9 @@
 import { useEffect } from "react";
 import { usePageContext } from "../components/layout/PageContext.tsx";
 
-export function VehicleAdd() {
+export function VehicleAdd({ mode = "add" }: { mode?: "edit" | "add" } = {}) {
     const { setHeading } = usePageContext();
+    console.log(mode);
 
     useEffect(() => {
         setHeading("Add a Vehicle");

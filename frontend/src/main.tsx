@@ -14,6 +14,7 @@ import {
     ModelAdd,
     VehicleAdd,
     Vehicles,
+    Vehicle,
 } from "./pages";
 
 const queryClient = new QueryClient();
@@ -27,7 +28,16 @@ createRoot(document.getElementById("root")!).render(
                         <Route path="/" element={<App />} />
                         <Route path="/dashboard" element={<Dashboard />} />
                         <Route path="/vehicles" element={<Vehicles />} />
-                        <Route path="/vehicles/add" element={<VehicleAdd />} />
+                        <Route path="/vehicles">
+                            <Route index element={<Vehicles />} />
+                            <Route path=":id" element={<Vehicle />} />
+                            <Route
+                                path=":id/edit"
+                                element={<VehicleAdd mode="edit" />}
+                            />
+                            <Route path="add" element={<VehicleAdd />} />
+                        </Route>
+
                         <Route path="/brand/add" element={<BrandAdd />} />
                         <Route path="/model/add" element={<ModelAdd />} />
                         <Route path="/analytics" element={<Analytics />} />
