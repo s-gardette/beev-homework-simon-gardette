@@ -1,30 +1,38 @@
 type ProgressProps = {
-    value: number; // 0-100
+    value: number;
     label?: string;
     gradientHeat?: boolean;
+    displayLabel?: boolean;
 };
 
-export function Progress({ value, label, gradientHeat }: ProgressProps) {
+export function Progress({
+    value,
+    label,
+    gradientHeat = false,
+    displayLabel = true,
+}: ProgressProps) {
     const clamped = Math.max(0, Math.min(100, Math.round(value)));
+    const bgLayerClass = gradientHeat
+        ? "bg-gradient-to-l from-chart-2 to-chart-5"
+        : "bg-accent";
+
     return (
         <div className="w-full">
-            <div className="mb-2 flex items-center justify-between">
-                <span className="text-muted-foreground text-sm font-medium">
-                    {label}
-                </span>
-                <span className="text-sm font-medium">{clamped}%</span>
-            </div>
-            <div className="h-3 w-full overflow-hidden rounded bg-slate-800">
+            {displayLabel && (
+                <div className="mb-2 flex items-center justify-between">
+                    <span className="text-muted-foreground text-sm font-medium">
+                        {label}
+                    </span>
+                    <span className="text-sm font-medium">{clamped}%</span>
+                </div>
+            )}
+            <div className="bg-background relative h-3 w-full overflow-hidden rounded">
                 <div
-                    className={gradientHeat ? "" : "bg-blue-600"}
-                    style={{
-                        height: "12px",
-                        width: `${clamped}%`,
-                        transition: "width 300ms ease",
-                        ...(gradientHeat && {
-                            background: `linear-gradient(to right, rgb(34 197 94), rgb(239 68 68))`,
-                        }),
-                    }}
+                    className={`absolute inset-0 transition-all duration-300 ease-in-out ${bgLayerClass}`}
+                />
+                <div
+                    className="bg-background absolute top-0 right-0 h-full transition-all duration-300 ease-in-out"
+                    style={{ width: `${100 - clamped}%` }}
                 />
             </div>
         </div>

@@ -1,5 +1,6 @@
 import { NavLink } from "react-router";
-import beevLogo from "../../assets/beev.svg";
+import { Heading } from "@/components/ui";
+import beevLogo from "@/assets/beev.svg";
 
 const MenuItems = [
     { name: "Home", path: "/" },
@@ -16,14 +17,18 @@ export function Header() {
         <header className="bg-background text-foreground sticky top-0 z-10 p-2">
             <div className="container mx-auto flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                    <a href="https://beev.co" target="_blank">
+                    <NavLink to="/">
                         <img
                             src={beevLogo}
                             className="logo h-16 w-16"
                             alt="Beev logo"
                         />
-                    </a>
-                    <h1 className="text-xl font-bold">Beev Homework</h1>
+                    </NavLink>
+                    <NavLink to="/">
+                        <Heading as="h1" variant="h3">
+                            Beev Fleet Management
+                        </Heading>
+                    </NavLink>
                 </div>
 
                 <nav>
