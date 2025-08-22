@@ -37,7 +37,7 @@ export async function fetchOrThrow(
   input: RequestInfo,
   init?: RequestInit
 ): Promise<Response> {
-  const res = await fetchOrThrow(input, init);
+  const res = await fetch(input, init);
   if (!res.ok) {
     let body: string | null = null;
     body = await res.text();
