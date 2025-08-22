@@ -13,7 +13,7 @@ const MenuItems = [
 
 export function Header() {
     return (
-        <header className="bg-secondary text-primary sticky top-0 z-10 p-2">
+        <header className="bg-background text-foreground sticky top-0 z-10 p-2">
             <div className="container mx-auto flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     <a href="https://beev.co" target="_blank">
@@ -31,7 +31,7 @@ export function Header() {
                         <NavLink
                             key={item.name}
                             to={item.path}
-                            className="mx-2 text-white hover:text-indigo-400"
+                            className="mx-2 text-foreground hover:text-indigo-400"
                         >
                             {item.name}
                         </NavLink>

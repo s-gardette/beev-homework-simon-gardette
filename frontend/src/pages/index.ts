@@ -4,3 +4,4 @@ export * from './analytics';
 export * from './vehicle-add';
 export * from './brand-add';
 export * from './model-add';
+export * from './vehicle';
