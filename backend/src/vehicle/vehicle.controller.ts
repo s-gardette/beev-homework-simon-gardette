@@ -7,6 +7,8 @@ import {
   Query,
   Param,
   Controller,
+  NotFoundException,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -63,8 +65,14 @@ export class VehicleController {
     description: 'The vehicle',
     type: Vehicle,
   })
-  async findOne(@Param('id') id: string): Promise<Vehicle | null> {
-    return this.vehicleService.findOne(id);
+  async findOne(
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<Vehicle> {
+    const vehicle = await this.vehicleService.findOne(id);
+    if (!vehicle) {
+      throw new NotFoundException(`Vehicle with id=${id} not found`);
+    }
+    return vehicle;
   }
 
   @Post()
