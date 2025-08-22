@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { usePageContext } from "../components/layout/PageContext.tsx";
+import { VehiclesTable } from "../components/VehiclesTable/VehiclesTable.tsx";
 
 export function Vehicles() {
     const { setHeading } = usePageContext();
@@ -8,5 +9,9 @@ export function Vehicles() {
         setHeading("Vehicles Fleet");
         return () => setHeading("");
     }, [setHeading]);
-    return <h1 className="text-2xl font-bold">ICI UN DAHSBOARD</h1>;
+    return (
+        <div className="vehicles space-y-6">
+            <VehiclesTable rows={50} />
+        </div>
+    );
 }
