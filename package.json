@@ -1,19 +1,23 @@
 {
-  "name": "beev-homework",
-  "version": "1.0.0",
-  "workspaces": [
-    "backend",
-    "frontend"
-  ],
-  "scripts": {
-    "build:backend": "pnpm --filter backend build",
-    "build:frontend": "pnpm --filter frontend build",
-    "dev:backend": "pnpm --filter backend start:dev",
-    "dev:frontend": "pnpm --filter frontend dev"
-  },
-  "license": "UNLICENSED",
-  "packageManager": "pnpm@10.15.0",
-  "devDependencies": {
-    "@nestjs/cli": "^11.0.5"
-  }
+    "name": "beev-homework",
+    "version": "1.0.0",
+    "workspaces": [
+        "backend",
+        "frontend"
+    ],
+    "scripts": {
+        "build:backend": "pnpm --filter backend build",
+        "build:frontend": "pnpm --filter frontend build",
+        "dev:backend": "pnpm --filter backend start:dev",
+        "dev:frontend": "pnpm --filter frontend dev",
+        "lint:backend": "pnpm --filter backend lint",
+        "lint:frontend": "pnpm --filter frontend lint",
+        "test:backend": "pnpm --filter backend test",
+        "test:frontend": "pnpm --filter frontend test"
+    },
+    "license": "UNLICENSED",
+    "packageManager": "pnpm@10.15.0",
+    "devDependencies": {
+        "@nestjs/cli": "^11.0.5"
+    }
 }

@@ -4,14 +4,56 @@ on:
     workflow_dispatch:
 
 env:
-    IMAGE_NAME: car-import-connexion
-    STACK_NAME: car-import-connexion
+    IMAGE_NAME: Beev
+    STACK_NAME: Beev
 
 jobs:
+    lint:
+        runs-on: ubuntu-22.04
+        strategy:
+            matrix:
+                node-version: [20]
+        steps:
+            - uses: actions/checkout@v4
+            - name: Install pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 10
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ matrix.node-version }}
+                  cache: "pnpm"
+            - name: Install dependencies
+              run: pnpm run lint:backend && pnpm run lint:frontend
+
+    tests:
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                node-version: [20]
+        steps:
+            - uses: actions/checkout@v4
+            - name: Install pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 10
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ matrix.node-version }}
+                  cache: "pnpm"
+            - name: 🧪 Run Tests
+              run: |
+                  echo "🧪 Running tests..."
+                  pnpm run test:backend --ci
+                  pnpm run test:frontend --ci
+                  echo "✅ Tests complete"
+
     deploy:
         runs-on: self-hosted
         environment: production
-
+        needs: [lint, tests]
         steps:
             - name: 🏗️ Checkout
               uses: actions/checkout@v4
