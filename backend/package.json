@@ -18,7 +18,10 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "import:cars": "ts-node -r tsconfig-paths/register scripts/import-cars.ts"
+    "seed:cars": "ts-node -r tsconfig-paths/register scripts/seed-cars.ts",
+    "typeorm": "typeorm-ts-node-commonjs",
+    "migration:generate": "node -r tsconfig-paths/register ./node_modules/typeorm/cli-ts-node-commonjs.js migration:generate ./src/database/migrations/ -d ./src/database/datasource.ts",
+    "migration:run": "node -r tsconfig-paths/register ./node_modules/typeorm/cli-ts-node-commonjs.js migration:run -d ./src/database/datasource.ts"
   },
   "dependencies": {
     "@keyv/redis": "^5.1.1",
