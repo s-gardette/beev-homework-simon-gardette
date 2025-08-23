@@ -16,6 +16,7 @@ type ImportSummary = {
   vehiclesSkipped: number;
 };
 
+// It's all GPT work
 @Injectable()
 export class BatchService {
   constructor(
@@ -43,7 +44,6 @@ export class BatchService {
     const rows: Record<string, string>[] = [];
     for (let i = 1; i < lines.length; i++) {
       const cols = lines[i].split(',');
-      // if columns exceed headers, join the extra columns to the last header
       if (cols.length > rawHeaders.length) {
         const first = cols.slice(0, rawHeaders.length - 1);
         const rest = cols.slice(rawHeaders.length - 1).join(',');
@@ -67,99 +67,108 @@ export class BatchService {
     let vehiclesSkipped = 0;
 
     for (const r of records) {
-      // Map CSV columns to fields
-      const externalId = r['ID'] || r['id'] || r['ExternalId'] || '';
-      const brandName = r['Brand'] || r['brand'] || '';
-      const modelName = r['Model'] || r['model'] || '';
-      const batteryCapacityStr =
-        r['Battery capacity (kWh)'] || r['Battery capacity'] || '0';
-      const currentChargeStr =
-        r['Current charge level (%)'] || r['Current charge level'] || '0';
-      const statusStr = (r['Status'] || 'available').toLowerCase();
-      const avgConsumptionStr =
-        r['Average energy consumption (kWh/100km or L/100km)'] ||
-        r['Average energy consumption'] ||
-        '0';
-      const typeStr = (r['Type'] || 'BEV').toUpperCase();
-      const emissionStr = r['Emission_gco2_km'] || r['Emission_gco2_km'] || '0';
+      try {
+        const externalId = r['ID'] || r['id'] || r['ExternalId'] || '';
+        const brandName = r['Brand'] || r['brand'] || '';
+        const modelName = r['Model'] || r['model'] || '';
+        const batteryCapacityStr =
+          r['Battery capacity (kWh)'] || r['Battery capacity'] || '0';
+        const currentChargeStr =
+          r['Current charge level (%)'] || r['Current charge level'] || '0';
+        const statusStr = (r['Status'] || 'available').toLowerCase();
+        const avgConsumptionStr =
+          r['Average energy consumption (kWh/100km or L/100km)'] ||
+          r['Average energy consumption'] ||
+          '0';
+        const typeStr = (r['Type'] || 'BEV').toUpperCase();
+        const emissionStr =
+          r['Emission_gco2_km'] || r['Emission_gco2_km'] || '0';
 
-      if (!brandName || !modelName) {
+        if (!brandName || !modelName) {
+          console.warn(
+            `Skipping record with missing brand or model: ${JSON.stringify(r)}`,
+          );
+          vehiclesSkipped++;
+          continue;
+        }
+
+        // find or create brand
+        let brand = await this.brandRepo.findOneBy({ name: brandName });
+        if (!brand) {
+          brand = this.brandRepo.create({ name: brandName });
+          brand = await this.brandRepo.save(brand);
+          brandsCreated++;
+        }
+
+        // find or create model (by name + brand)
+        let model = await this.modelRepo
+          .createQueryBuilder('m')
+          .leftJoinAndSelect('m.Brand', 'brand')
+          .where('m.name = :name', { name: modelName })
+          .andWhere('brand.id = :brandId', { brandId: brand.id })
+          .getOne();
+
+        const batteryCapacity = parseInt(batteryCapacityStr || '0', 10) || 0;
+        const avgConsumptionRaw = parseFloat(avgConsumptionStr || '0') || 0;
+        const emission = parseFloat(emissionStr || '0') || 0;
+
+        const type = typeStr === 'ICE' ? TypeEnum.ICE : TypeEnum.BEV;
+
+        const averageConsumption =
+          type === TypeEnum.BEV ? avgConsumptionRaw * 10 : avgConsumptionRaw;
+
+        if (!model) {
+          model = this.modelRepo.create({
+            name: modelName,
+            batteryCapacity,
+            averageConsumption,
+            emissionGCO2: emission,
+            Type: type,
+            Brand: brand,
+          } as Partial<Model>);
+          model = await this.modelRepo.save(model);
+          modelsCreated++;
+        }
+
+        // avoid creating duplicate vehicle for same externalId
+        let vehicle: Vehicle | null = null;
+        if (externalId) {
+          vehicle = await this.vehicleRepo.findOneBy({ externalId });
+        }
+
+        if (vehicle) {
+          console.warn(
+            `Skipping duplicate vehicle with externalId: ${externalId}`,
+          );
+          vehiclesSkipped++;
+          continue;
+        }
+
+        const vehicleName = `${brand.name} ${model.name}`;
+        const vehicleEntity = this.vehicleRepo.create({
+          externalId: externalId || null,
+          name: vehicleName,
+          brand: brand,
+          model: model,
+        } as Partial<Vehicle>);
+
+        const savedVehicle = await this.vehicleRepo.save(vehicleEntity);
+
+        const currentChargeLevel = parseFloat(currentChargeStr || '0') || 0;
+        const status = statusStr as unknown as VehicleStatusEnum;
+
+        const statusEntity = this.vehicleStatusRepo.create({
+          currentChargeLevel,
+          status,
+          vehicle: savedVehicle,
+        } as Partial<VehicleStatus>);
+        await this.vehicleStatusRepo.save(statusEntity);
+
+        vehiclesCreated++;
+      } catch (error) {
+        console.error(`Error processing record: ${JSON.stringify(r)}`, error);
         vehiclesSkipped++;
-        continue;
       }
-
-      // find or create brand
-      let brand = await this.brandRepo.findOneBy({ name: brandName });
-      if (!brand) {
-        brand = this.brandRepo.create({ name: brandName });
-        brand = await this.brandRepo.save(brand);
-        brandsCreated++;
-      }
-
-      // find or create model (by name + brand)
-      let model = await this.modelRepo
-        .createQueryBuilder('m')
-        .leftJoinAndSelect('m.Brand', 'brand')
-        .where('m.name = :name', { name: modelName })
-        .andWhere('brand.id = :brandId', { brandId: brand.id })
-        .getOne();
-
-      const batteryCapacity = parseInt(batteryCapacityStr || '0', 10) || 0;
-      const avgConsumptionRaw = parseFloat(avgConsumptionStr || '0') || 0;
-      const emission = parseFloat(emissionStr || '0') || 0;
-
-      const type = typeStr === 'ICE' ? TypeEnum.ICE : TypeEnum.BEV;
-
-      // Convert avg consumption for BEV given as kWh/100km -> Wh/km
-      const averageConsumption =
-        type === TypeEnum.BEV ? avgConsumptionRaw * 10 : avgConsumptionRaw;
-
-      if (!model) {
-        model = this.modelRepo.create({
-          name: modelName,
-          batteryCapacity,
-          averageConsumption,
-          emissionGCO2: emission,
-          Type: type,
-          Brand: brand,
-        } as Partial<Model>);
-        model = await this.modelRepo.save(model);
-        modelsCreated++;
-      }
-
-      // avoid creating duplicate vehicle for same externalId
-      let vehicle: Vehicle | null = null;
-      if (externalId) {
-        vehicle = await this.vehicleRepo.findOneBy({ externalId });
-      }
-
-      if (vehicle) {
-        vehiclesSkipped++;
-        continue;
-      }
-
-      const vehicleName = `${brand.name} ${model.name}`;
-      const vehicleEntity = this.vehicleRepo.create({
-        externalId: externalId || null,
-        name: vehicleName,
-        brand: brand,
-        model: model,
-      } as Partial<Vehicle>);
-
-      const savedVehicle = await this.vehicleRepo.save(vehicleEntity);
-
-      // create status
-      const currentChargeLevel = parseFloat(currentChargeStr || '0') || 0;
-      const status = statusStr as unknown as VehicleStatusEnum;
-
-      const statusEntity = this.vehicleStatusRepo.create({
-        currentChargeLevel,
-        status,
-        vehicle: savedVehicle,
-      } as Partial<VehicleStatus>);
-      await this.vehicleStatusRepo.save(statusEntity);
-
-      vehiclesCreated++;
     }
 
     return { brandsCreated, modelsCreated, vehiclesCreated, vehiclesSkipped };
