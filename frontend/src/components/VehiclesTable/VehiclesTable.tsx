@@ -207,10 +207,10 @@ export function VehiclesTable({ rows = 10 }: { rows?: number }) {
                                 return (
                                     <TableHead key={header.id}>
                                         {header.isPlaceholder ? null : (
-                                                    <div
-                                                        className={`flex items-center gap-2 ${header.column.getCanSort() ? 'cursor-pointer select-none' : ''}`}
-                                                        onClick={header.column.getToggleSortingHandler?.()}
-                                                    >
+                                            <div
+                                                className={`flex items-center gap-2 ${header.column.getCanSort() ? "cursor-pointer select-none" : ""}`}
+                                                onClick={header.column.getToggleSortingHandler?.()}
+                                            >
                                                 {flexRender(
                                                     header.column.columnDef
                                                         .header,
