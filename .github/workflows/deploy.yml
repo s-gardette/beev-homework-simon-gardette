@@ -1,0 +1,171 @@
+name: Build and Deploy
+
+on:
+    workflow_dispatch:
+
+env:
+    IMAGE_NAME: car-import-connexion
+    STACK_NAME: car-import-connexion
+
+jobs:
+    deploy:
+        runs-on: self-hosted
+        environment: production
+
+        steps:
+            - name: 🏗️ Checkout
+              uses: actions/checkout@v4
+
+            - name: 🔍 System Check
+              run: |
+                  echo "🔍 System Info"
+                  docker --version
+                  docker compose version
+                  df -h / | tail -1
+
+            - name: 🔨 Build Docker Image
+              run: |
+                  echo "🔨 Building $IMAGE_NAME..."
+                  docker build
+                  echo "✅ Build complete"
+
+            - name: 🚀 Initialize Swarm
+              run: |
+                  if ! docker info | grep -q "Swarm: active"; then
+                    echo "🚀 Initializing swarm..."
+                    docker swarm init
+                  else
+                    echo "✅ Swarm already active"
+                  fi
+
+            - name: 🌐 Create Networks
+              run: |
+                  echo "🌐 Creating Docker networks..."
+
+                  # Create web network if it doesn't exist
+                  if ! docker network ls | grep -q "web"; then
+                    echo "🌐 Creating web network..."
+                    docker network create --driver overlay --attachable web
+                    echo "✅ Web network created"
+                  else
+                    echo "✅ Web network already exists"
+                  fi
+
+                  # Create internal network if it doesn't exist
+                  if ! docker network ls | grep -q "internal"; then
+                    echo "🌐 Creating internal network..."
+                    docker network create --driver overlay --internal internal
+                    echo "✅ Internal network created"
+                  else
+                    echo "✅ Internal network already exists"
+                  fi
+
+            - name: 🔐 Create Docker Secrets
+              env:
+                  POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+                  POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+                  POSTGRES_DB: ${{ vars.POSTGRES_DB }}
+                  DB_HOST: ${{ vars.DB_HOST }}
+                  DB_PORT: ${{ vars.DB_PORT }}
+                  DB_NAME: ${{ vars.POSTGRES_DB }}
+                  DB_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+                  DOMAIN: ${{ vars.DOMAIN }}
+              run: |
+                  echo "🔐 Creating Docker secrets..."
+
+                  # Function to create or update secret safely
+                  create_or_update_secret() {
+                    local secret_name=$1
+                    local secret_value=$2
+                    
+                    if docker secret inspect $secret_name >/dev/null 2>&1; then
+                      # Check if secret is in use by any services
+                      local in_use=false
+                      echo "🔍 Checking if secret $secret_name is in use..."
+                      for service in $(docker service ls --format "{{.Name}}" 2>/dev/null); do
+                        echo "  Checking service: $service"
+                        local service_secrets=$(docker service inspect $service --format "{{range .Spec.TaskTemplate.ContainerSpec.Secrets}}{{.SecretName}} {{end}}" 2>/dev/null)
+                        echo "  Service secrets: $service_secrets"
+                        if echo "$service_secrets" | grep -q "${secret_name}"; then
+                          echo "  Found secret $secret_name in service $service"
+                          in_use=true
+                          break
+                        fi
+                      done
+                      
+                      if [ "$in_use" = true ]; then
+                        echo "⚠️ Secret $secret_name is in use by services, skipping update"
+                        return 0
+                      else
+                        echo "🔄 Updating existing secret: $secret_name"
+                        docker secret rm $secret_name
+                        echo "$secret_value" | docker secret create $secret_name -
+                        echo "✅ Updated secret: $secret_name"
+                      fi
+                    else
+                      echo "$secret_value" | docker secret create $secret_name -
+                      echo "✅ Created secret: $secret_name"
+                    fi
+                  }
+
+                  # Create all required secrets
+                  create_or_update_secret "POSTGRES_USER" "$POSTGRES_USER"
+                  create_or_update_secret "POSTGRES_USER" "$POSTGRES_PASSWORD"  
+                  create_or_update_secret "POSTGRES_DB" "$POSTGRES_DB"
+                  create_or_update_secret "DB_HOST" "$PAYLOAD_SECRET"
+                  create_or_update_secret "DB_PORT" "$S3_ACCESS_KEY_ID"
+                  create_or_update_secret "DB_NAME" "$DB_NAME"
+                  create_or_update_secret "DOMAIN" "$DOMAIN"
+
+                  echo "✅ All secrets created"
+
+            - name: 🚀 Deploy Stack
+              env:
+                  POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+                  POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+                  POSTGRES_DB: ${{ vars.POSTGRES_DB }}
+                  DB_HOST: ${{ vars.DB_HOST }}
+                  DB_PORT: ${{ vars.DB_PORT }}
+                  DB_NAME: ${{ vars.POSTGRES_DB }}
+                  DB_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+                  DOMAIN: ${{ vars.DOMAIN }}
+              run: |
+                  echo "🚀 Deploying $STACK_NAME..."
+                  docker stack deploy -c docker-compose-swarm.yml $STACK_NAME
+                  echo "✅ Deploy complete"
+
+            - name: ⏳ Wait for Services
+              run: |
+                  echo "⏳ Waiting for services..."
+                  sleep 30
+
+                  echo "📊 Service Status:"
+                  docker stack services $STACK_NAME
+
+                  echo "🏥 Health Check:"
+                  for i in {1..6}; do
+                    if docker service ls --filter name=${STACK_NAME}_app --format "{{.Replicas}}" | grep -q "1/1"; then
+                      echo "✅ App is healthy!"
+                      break
+                    fi
+                    echo "Attempt $i/6: Still starting..."
+                    [ $i -eq 6 ] && echo "⚠️ Service may need more time"
+                    sleep 15
+                  done
+
+            - name: 🧹 Cleanup
+              if: always()
+              run: |
+                  docker image prune -f --filter "until=24h"
+                  echo "✅ Cleanup complete"
+
+            - name: 📋 Summary
+              run: |
+                  echo "=================================="
+                  echo "🎉 DEPLOYMENT COMPLETE"
+                  echo "=================================="
+                  echo "Stack: $STACK_NAME"
+                  echo "Image: $IMAGE_NAME:latest"
+                  echo "Services:"
+                  docker stack services $STACK_NAME
+                  echo "=================================="
