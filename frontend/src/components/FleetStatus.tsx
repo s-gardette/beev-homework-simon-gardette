@@ -31,6 +31,11 @@ export function FleetStatus() {
         );
 
     if (error) return "An error has occurred: " + error.message;
+
+    if (data?.totalVehicles === 0 && !isPending && !error) {
+        return;
+    }
+
     return (
         <div className="mb-8">
             <div className="mb-8 flex w-full grow items-center justify-between">
