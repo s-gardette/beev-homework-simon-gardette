@@ -34,6 +34,7 @@ import {
     DropdownMenuContent,
     DropdownMenuCheckboxItem,
 } from "@/components/ui";
+import { SeedDBButton } from "../SeedDBButton";
 import VehiclesFilters from "./Filters";
 import { VehicleAdd } from "@/pages/vehicle-add";
 
@@ -50,7 +51,9 @@ export function VehiclesTable({ rows = 10 }: { rows?: number }) {
 
     // local table state: filter / sort / pagination
     const [globalFilter, setGlobalFilter] = useState<string>("");
-    const [sorting, setSorting] = useState<SortingState>([]);
+    const [sorting, setSorting] = useState<SortingState>([
+        { id: "updatedAt", desc: true },
+    ]);
     const [pagination, setPagination] = useState({
         pageIndex: 0,
         pageSize: rows,
@@ -108,7 +111,22 @@ export function VehiclesTable({ rows = 10 }: { rows?: number }) {
             </div>
         );
     if (error) return "An error has occurred: " + (error as Error).message;
-    if (!data || data.length === 0) return <div>No vehicles available</div>;
+    if (vehicles.length === 0 && !isLoading && !error) {
+        return (
+            <>
+                <div className="mb-8 overflow-hidden rounded-md border p-6">
+                    No vehicles available
+                </div>
+                <div className="mb-8 overflow-hidden rounded-md border p-6">
+                    Add some vehicles manually or use the &quot;Seed
+                    Database&quot; button below to populate with sample data.
+                    <div className="mt-4">
+                        <SeedDBButton />
+                    </div>
+                </div>
+            </>
+        );
+    }
 
     return (
         <div className="mb-8 overflow-hidden rounded-md border">
@@ -189,14 +207,10 @@ export function VehiclesTable({ rows = 10 }: { rows?: number }) {
                                 return (
                                     <TableHead key={header.id}>
                                         {header.isPlaceholder ? null : (
-                                            <div
-                                                className="flex items-center gap-2"
-                                                onClick={() =>
-                                                    header.column
-                                                        .getToggleSortingHandler &&
-                                                    header.column.getToggleSortingHandler()
-                                                }
-                                            >
+                                                    <div
+                                                        className={`flex items-center gap-2 ${header.column.getCanSort() ? 'cursor-pointer select-none' : ''}`}
+                                                        onClick={header.column.getToggleSortingHandler?.()}
+                                                    >
                                                 {flexRender(
                                                     header.column.columnDef
                                                         .header,
