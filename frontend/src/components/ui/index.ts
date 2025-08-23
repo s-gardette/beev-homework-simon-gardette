@@ -8,6 +8,7 @@ export * from "./form";
 export * from "./heading";
 export * from "./input";
 export * from "./multi-select";
+export * from "./navigation-menu";
 export * from "./popover";
 export * from "./progress"
 export * from "./slider";
