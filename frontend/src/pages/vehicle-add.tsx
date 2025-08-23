@@ -55,10 +55,14 @@ export function VehicleAdd({
         queryFn: () => fetchOrThrow("/api/brands").then((res) => res.json()),
     });
 
-    const mutationResult = useMutation({
+    const mutation = useMutation({
         mutationFn: (data: FormValues) => {
             const body = JSON.stringify({
-                externalId: data.externalId ?? null,
+                // send null when externalId is empty string so backend treats it as nullable
+                externalId:
+                    data.externalId && String(data.externalId).trim() !== ""
+                        ? data.externalId
+                        : null,
                 name: data.name,
                 brandId: data.brandId,
                 modelId: data.modelId,
@@ -108,11 +112,11 @@ export function VehicleAdd({
         },
     });
 
-    const { mutateAsync } = mutationResult;
-    const loading = mutationResult.status === "pending";
-    const isError = mutationResult.status === "error";
-    const isSuccess = mutationResult.status === "success";
-    const mutationError = mutationResult.error;
+    const { mutateAsync } = mutation;
+    const loading = mutation.status === "pending";
+    const isError = mutation.status === "error";
+    const isSuccess = mutation.status === "success";
+    const mutationError = mutation.error;
 
     const form = useForm<FormValues>({
         defaultValues: {
@@ -251,7 +255,7 @@ export function VehicleAdd({
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel className="flex flex-col items-start">
-                                    <span>Name</span>
+                                    <span>Name (optional)</span>
                                     <span className="text-muted-foreground text-xs">
                                         if no name is provided will be created
                                         dynamically with brand and model
