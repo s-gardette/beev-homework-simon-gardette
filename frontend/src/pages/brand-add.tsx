@@ -18,14 +18,22 @@ type FormValues = {
     name: string;
 };
 
-export function BrandAdd() {
+export function BrandAdd({
+    mode = "add",
+    noContext = false,
+}: { mode?: "edit" | "add"; noContext?: boolean } = {}) {
     const { setHeading } = usePageContext();
     const queryClient = useQueryClient();
 
+    // Just log it atm. For later use (to edit a model)
+    console.log("mode", mode);
+
     useEffect(() => {
-        setHeading("Add a Brand");
-        return () => setHeading("");
-    }, [setHeading]);
+        if (!noContext) {
+            setHeading("Add a Brand");
+            return () => setHeading("");
+        }
+    }, [setHeading, noContext]);
 
     const mutation = useMutation({
         mutationFn: (data: FormValues) => {

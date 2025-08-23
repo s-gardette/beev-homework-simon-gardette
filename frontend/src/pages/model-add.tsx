@@ -31,14 +31,22 @@ type FormValues = {
     Type: "BEV" | "ICE";
 };
 
-export function ModelAdd() {
+export function ModelAdd({
+    mode = "add",
+    noContext = false,
+}: { mode?: "edit" | "add"; noContext?: boolean } = {}) {
     const { setHeading } = usePageContext();
     const queryClient = useQueryClient();
 
+    // Just log it atm. For later use (to edit a model)
+    console.log("mode", mode);
+
     useEffect(() => {
-        setHeading("Add a Vehicle Model");
-        return () => setHeading("");
-    }, [setHeading]);
+        if (!noContext) {
+            setHeading("Add a Vehicle Model");
+            return () => setHeading("");
+        }
+    }, [setHeading, noContext]);
 
     const { data: brands, isLoading: brandsLoading } = useQuery<Brand[]>({
         queryKey: ["brands"],
