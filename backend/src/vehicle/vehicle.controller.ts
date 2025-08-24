@@ -9,6 +9,7 @@ import {
   Controller,
   NotFoundException,
   ParseUUIDPipe,
+  HttpCode,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -86,7 +87,7 @@ export class VehicleController {
     type: Vehicle,
   })
   async create(@Body() vehicleData: CreateVehicleDto): Promise<Vehicle> {
-    return this.vehicleService.create(vehicleData as Partial<Vehicle>);
+    return this.vehicleService.create(vehicleData);
   }
 
   @Put(':id')
@@ -111,6 +112,7 @@ export class VehicleController {
   }
 
   @Delete(':id')
+  @HttpCode(204)
   @ApiOperation({ summary: 'Delete a vehicle' })
   @ApiParam({
     name: 'id',

@@ -36,6 +36,8 @@ export class Vehicle extends BaseEntity {
 
   @OneToOne(() => VehicleStatus, (vehicleStatus) => vehicleStatus.vehicle, {
     eager: true,
+    cascade: true,
+    onDelete: 'CASCADE',
   })
   vehicleStatus: Relation<VehicleStatus>;
 }

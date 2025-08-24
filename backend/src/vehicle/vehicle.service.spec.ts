@@ -3,8 +3,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { NotFoundException } from '@nestjs/common';
 import { VehicleService } from './vehicle.service';
 import { Vehicle, VehicleStatus, VehicleStatusEnum } from './vehicle.entities';
-// The test uses untyped jest mocks which trip several `@typescript-eslint/no-unsafe-*` rules.
-// Disable those rules for this file only. Prefer strongly-typed mocks as a long-term fix.
+import { CreateVehicleDto } from './dto/vehicle.dto';
 
 describe('VehicleService (unit)', () => {
   let service: VehicleService;
@@ -17,6 +16,7 @@ describe('VehicleService (unit)', () => {
       save: jest.fn(),
       findOne: jest.fn(),
       delete: jest.fn(),
+      preload: jest.fn(),
       createQueryBuilder: jest.fn().mockReturnValue({
         leftJoinAndSelect: jest.fn().mockReturnThis(),
         andWhere: jest.fn().mockReturnThis(),
@@ -27,8 +27,6 @@ describe('VehicleService (unit)', () => {
     mockStatusRepo = {
       create: jest.fn(),
       save: jest.fn(),
-      findOneBy: jest.fn(),
-      findOne: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -47,28 +45,11 @@ describe('VehicleService (unit)', () => {
 
   afterEach(() => jest.resetAllMocks());
 
-  it('updateStatus returns null when vehicle not found', async () => {
+  it('updateStatus throws NotFoundException when vehicle not found', async () => {
     mockVehicleRepo.findOne.mockResolvedValue(null);
-    const res = await service.updateStatus(
-      'nonexistent',
-      {} as Partial<VehicleStatus>,
-    );
-    expect(res).toBeNull();
-  });
-
-  it('updateStatus returns null when vehicle has status id but repo findOneBy returns null', async () => {
-    const vehicle: Partial<Vehicle> = {
-      id: 'v1',
-      vehicleStatus: { id: 42 } as any,
-    };
-    mockVehicleRepo.findOne.mockResolvedValue(vehicle);
-    mockStatusRepo.findOneBy.mockResolvedValue(null);
-
-    const res = await service.updateStatus('v1', {
-      currentChargeLevel: 10,
-    } as Partial<VehicleStatus>);
-    expect(mockStatusRepo.findOneBy).toHaveBeenCalledWith({ id: 42 });
-    expect(res).toBeNull();
+    await expect(
+      service.updateStatus('nonexistent', {} as Partial<VehicleStatus>),
+    ).rejects.toThrow(NotFoundException);
   });
 
   it('updateStatus updates existing status when found', async () => {
@@ -83,13 +64,11 @@ describe('VehicleService (unit)', () => {
     } as any;
 
     mockVehicleRepo.findOne.mockResolvedValue(vehicle);
-    mockStatusRepo.findOneBy.mockResolvedValue(existingStatus);
-    mockStatusRepo.save.mockImplementation((s) => Promise.resolve({ ...s }));
+    mockStatusRepo.save.mockImplementation((s) => Promise.resolve({ ...existingStatus, ...s }));
 
     const toUpdate: Partial<VehicleStatus> = { currentChargeLevel: 50 };
     const res = await service.updateStatus('v2', toUpdate);
 
-    expect(mockStatusRepo.findOneBy).toHaveBeenCalledWith({ id: 7 });
     expect(mockStatusRepo.save).toHaveBeenCalled();
     expect(res).toHaveProperty('currentChargeLevel', 50);
   });
@@ -116,116 +95,38 @@ describe('VehicleService (unit)', () => {
     expect(res).toEqual(created);
   });
 
-  it('update returns null when vehicle not found', async () => {
-    mockVehicleRepo.findOne.mockResolvedValue(null);
-    const res = await service.update('nope', { name: 'x' } as Partial<Vehicle>);
-    expect(res).toBeNull();
-  });
-
-  it('update throws NotFoundException when vehicleStatusId does not exist', async () => {
-    const vehicle: Partial<Vehicle> = { id: 'v4', vehicleStatus: undefined };
-    mockVehicleRepo.findOne.mockResolvedValue(vehicle);
-    mockStatusRepo.findOneBy.mockResolvedValue(null);
-
-    await expect(
-      service.update('v4', { vehicleStatusId: 123 } as any),
-    ).rejects.toThrow(NotFoundException);
-  });
-
-  it('update clears vehicleStatus when vehicleStatusId is null', async () => {
-    const vehicle: Partial<Vehicle> = {
-      id: 'v5',
-      vehicleStatus: { id: 5 } as any,
-    };
-    const savedVehicle = {
-      ...(vehicle as any),
-      vehicleStatus: null,
-    } as Vehicle;
-
-    mockVehicleRepo.findOne.mockResolvedValue(vehicle);
-    mockVehicleRepo.save.mockResolvedValue(savedVehicle);
-
-    const res = await service.update('v5', { vehicleStatusId: null } as any);
-    expect(mockVehicleRepo.save).toHaveBeenCalled();
-    expect(res).toHaveProperty('vehicleStatus', null);
+  it('update throws NotFoundException when vehicle not found', async () => {
+    mockVehicleRepo.preload.mockResolvedValue(null);
+    await expect(service.update('nope', { name: 'x' } as Partial<Vehicle>)).rejects.toThrow(
+      NotFoundException,
+    );
   });
 
   it('create with inline vehicleStatus creates and returns full vehicle', async () => {
     const partial = {
       name: 'v-create',
       vehicleStatus: { currentChargeLevel: 10 },
-    } as Partial<Vehicle>;
+    } as CreateVehicleDto;
     const savedVehicle = { id: 'new-id', ...partial } as any;
-    const savedStatus = {
-      id: 55,
-      currentChargeLevel: 10,
-      status: VehicleStatusEnum.Available,
-    } as any;
-    const fullVehicle = { ...savedVehicle, vehicleStatus: savedStatus };
 
     mockVehicleRepo.create.mockImplementation((r) => r);
     mockVehicleRepo.save.mockResolvedValue(savedVehicle);
-    mockStatusRepo.create.mockImplementation((s) => ({ ...s }));
-    mockStatusRepo.save.mockResolvedValue(savedStatus);
-    mockVehicleRepo.findOne.mockResolvedValue(fullVehicle);
 
     const res = await service.create(partial);
     expect(mockVehicleRepo.save).toHaveBeenCalled();
-    expect(mockStatusRepo.save).toHaveBeenCalled();
-    expect(res).toEqual(fullVehicle);
+    expect(res).toEqual(savedVehicle);
   });
 
   it('findAll applies brandId filter to query builder', async () => {
-    // ensure createQueryBuilder returns a spyable object
     const qb = mockVehicleRepo.createQueryBuilder();
-    // call findAll with a brandId
     await service.findAll('BRAND-123');
     expect(qb.andWhere).toHaveBeenCalledWith('brand.id = :brandId', {
       brandId: 'BRAND-123',
     });
   });
 
-  it('create without inline vehicleStatus does not create status', async () => {
-    const partial = { name: 'v-create-no-status' } as Partial<Vehicle>;
-    const savedVehicle = { id: 'new-id-no-status', ...partial } as any;
-    const fullVehicle = { ...savedVehicle, vehicleStatus: undefined };
-
-    mockVehicleRepo.create.mockImplementation((r) => r);
-    mockVehicleRepo.save.mockResolvedValue(savedVehicle);
-    mockVehicleRepo.findOne.mockResolvedValue(fullVehicle);
-
-    const res = await service.create(partial);
-    expect(mockStatusRepo.save).not.toHaveBeenCalled();
-    expect(res).toEqual(fullVehicle);
-  });
-
-  it('update attaches existing vehicleStatus when vehicleStatusId exists and saves', async () => {
-    const vehicle: Partial<Vehicle> = {
-      id: 'v-update',
-      vehicleStatus: undefined,
-      name: 'old',
-    };
-    const status = {
-      id: 200,
-      status: VehicleStatusEnum.Available,
-      currentChargeLevel: 90,
-    } as any;
-    const savedVehicle = {
-      ...vehicle,
-      vehicleStatus: status,
-      name: 'updated',
-    } as any;
-
-    mockVehicleRepo.findOne.mockResolvedValue(vehicle);
-    mockStatusRepo.findOneBy.mockResolvedValue(status);
-    mockVehicleRepo.save.mockResolvedValue(savedVehicle);
-
-    const res = await service.update('v-update', {
-      vehicleStatusId: 200,
-      name: 'updated',
-    } as any);
-    expect(mockStatusRepo.findOneBy).toHaveBeenCalledWith({ id: 200 });
-    expect(mockVehicleRepo.save).toHaveBeenCalled();
-    expect(res).toEqual(savedVehicle);
+  it('delete throws NotFoundException when vehicle not found', async () => {
+    mockVehicleRepo.delete.mockResolvedValue({ affected: 0 });
+    await expect(service.delete('nonexistent')).rejects.toThrow(NotFoundException);
   });
 });
