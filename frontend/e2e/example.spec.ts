@@ -5,6 +5,6 @@ test('has title', async ({ page }) => {
 
   // Expect a title "to contain" a substring.
   // Remove not to pass the test.
-  await expect(page).not.toHaveTitle(/Beev Homework/);
+  await expect(page).not.toHaveTitle(/Beev Fleet Management/);
 });
 

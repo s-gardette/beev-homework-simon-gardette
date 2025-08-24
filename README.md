@@ -1,21 +1,52 @@
 # EV Fleet Analytics - Full-Stack Developer Assessment
 
+# How to start the project
+
+## Local-Dev :
+
+If you have tmux installed you can start the project using the provided `./start.sh`.
+
+Else start manually :
+
+```sh
+docker compose up database redis -d
+pnpm run dev:backend
+pnpm run dev:frontend
+```
+
+You can test the prod config running docker compose :
+
+```sh
+docker compose up
+```
+
+> note: There could be some inconsistencies if you run manually the
+> backend then through docker (or reverse) due to sync and migrations.
+> If so just `docker compose down -v` and relaunch. I should have
+> covered most of the casse so it shouldn't happen but i'm not used to
+> the way typeorm handle migrations (i've used drizzle more but wanted
+> to stay close to the provided task). (also if the site does not display at all after running the full docker and switching back to dev verify your browser does not try to serve https.)
+
+Now that you have started the project you could also have a glance at [my feedback](FEEDBACK-SIMON.md)
+
 ## Overview
 
 Design and implement a small full-stack application to help fleet managers monitor their electric vehicle fleet's efficiency and environmental impact. This project should demonstrate your ability to create clean, well-organized code while solving real-world problems.
 
 ## Expected Solution
- - We are looking forward to a project that keeps the provided organization, so please **do not split** your code into different projects
- - We expect a solution that will run without us having to do any modifications or debugging, make sure that your project **works from scratch**
- - The commands that are listed should be enough to launch the project and the seeder
- - **Important**: Focus on code quality over feature quantity. It's okay to mock some data or functionalities, but document any assumptions you make.
+
+- We are looking forward to a project that keeps the provided organization, so please **do not split** your code into different projects
+- We expect a solution that will run without us having to do any modifications or debugging, make sure that your project **works from scratch**
+- The commands that are listed should be enough to launch the project and the seeder
+- **Important**: Focus on code quality over feature quantity. It's okay to mock some data or functionalities, but document any assumptions you make.
 
 ## AI Usage Guidelines
 
-While AI tools can be valuable learning resources, excessive reliance on AI-generated code for this assessment defeats its purpose and **will harm your candidacy**. 
+While AI tools can be valuable learning resources, excessive reliance on AI-generated code for this assessment defeats its purpose and **will harm your candidacy**.
 This test evaluates your problem-solving abilities, technical decision-making, and coding practices not how much code you can produce.
 
 During the review process, be prepared for:
+
 - A live discussion about your implementation
 - Questions about specific technical choices
 - Potential real-time modifications to your code
@@ -26,9 +57,9 @@ During the review process, be prepared for:
 - **Expected effort**: 4-5 hours
 - **Submission method: Private GitHub repository**
 - **Share access in a private github repository with**:
-  - https://github.com/antonin-beev
-  - https://github.com/JadBeev
-  - https://github.com/CarlEH
+    - https://github.com/antonin-beev
+    - https://github.com/JadBeev
+    - https://github.com/CarlEH
 
 ## Project Requirements
 
@@ -46,8 +77,8 @@ The application will track vehicles with the following properties:
 - Status (enum: available, charging, in_use)
 - Last updated (timestamp)
 - Average energy consumption (kWh/100km)
-- Type (BEV/ICE) - *BEV = Battery Electric Vehicle, ICE = Internal Combustion Engine*
-- Emission_gco2_km - *Grams of CO2 per kilometer*
+- Type (BEV/ICE) - _BEV = Battery Electric Vehicle, ICE = Internal Combustion Engine_
+- Emission_gco2_km - _Grams of CO2 per kilometer_
 
 **Data Source**: Seed your database using the provided `data/cars.csv` file (available in the project repository).
 
@@ -113,13 +144,13 @@ The application will track vehicles with the following properties:
 ## Evaluation Criteria
 
 We're looking for:
+
 - Clean, maintainable code
 - Problem-solving approach
 - Attention to detail
 - Learning ability
 - Technical decision-making
 - Time management
-
 
 ---
 
@@ -133,14 +164,14 @@ We're looking for:
 
 ## Service Ports Overview
 
-| Service        | Internal Port | External Port | Access URL                    | Description                     |
-|---------------|--------------|--------------|-------------------------------|--------------------------------|
-| Frontend      | 8080         | 8000         | http://localhost:8000         | React Frontend Application     |
-| Backend       | 3000         | 3000         | http://localhost:3000         | NestJS Backend API             |
-| Postgres      | 5432         | 5432         | localhost:5432                | Database Service               |
-| PgAdmin       | 80           | 8001         | http://localhost:8001         | Postgres Management Interface  |
-| Redis         | 6379         | 6379         | localhost:6379                | Key-Value Store                |
-| Redis Insight | 5540         | 8002         | http://localhost:8002         | Redis Management Interface     |
+| Service       | Internal Port | External Port | Access URL            | Description                   |
+| ------------- | ------------- | ------------- | --------------------- | ----------------------------- |
+| Frontend      | 8080          | 8000          | http://localhost:8000 | React Frontend Application    |
+| Backend       | 3000          | 3000          | http://localhost:3000 | NestJS Backend API            |
+| Postgres      | 5432          | 5432          | localhost:5432        | Database Service              |
+| PgAdmin       | 80            | 8001          | http://localhost:8001 | Postgres Management Interface |
+| Redis         | 6379          | 6379          | localhost:6379        | Key-Value Store               |
+| Redis Insight | 5540          | 8002          | http://localhost:8002 | Redis Management Interface    |
 
 > **Note for Redis Insight**: Use the connection string `redis://default@redis:6379`
 
