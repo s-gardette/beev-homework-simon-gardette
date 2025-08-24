@@ -71,7 +71,8 @@ I think I could have done a very rough backend in two to three hours. Frontend w
 - Improve the swagger doc, probably also integrate redoc middleware (it's easier to use.)
 - Implement simple monitoring (something like [newrelic](https://newrelic.com)) or prometheus if we intend to keep things in single docker compose.
 
-# Known Bugs (in no particular order)
+# Known Bugs (in no particular order) (would open issues in real world)
 
 - The menu child elements do not align properly. I used the shadcn one, didn't have time to check what's conflicting.
 - Chart Color doesn't change properly when i set it.
+- The sheet to add a vehicule refuse to use background color (i've not investigated why deeply). Warning flashing lights.
