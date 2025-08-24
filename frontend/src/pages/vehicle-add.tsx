@@ -177,26 +177,16 @@ export function VehicleAdd({
 
     useEffect(() => {
         if (mode === "edit" && vehicleData) {
-            setValue("externalId", vehicleData.externalId ?? "");
-            setValue("name", vehicleData.name ?? "");
-            setValue(
-                "brandId",
-                vehicleData.brand?.id ?? vehicleData.brand ?? ""
-            );
-            setValue(
-                "modelId",
-                vehicleData.model?.id ?? vehicleData.model ?? ""
-            );
-            setValue(
-                "currentChargeLevel",
-                vehicleData.vehicleStatus?.currentChargeLevel ?? 80
-            );
-            setValue(
-                "status",
-                vehicleData.vehicleStatus?.status ?? "available"
-            );
+            reset({
+                externalId: vehicleData.externalId ?? "",
+                name: vehicleData.name ?? "",
+                brandId: vehicleData.brand?.id ?? vehicleData.brand ?? "",
+                modelId: vehicleData.model?.id ?? vehicleData.model ?? "",
+                currentChargeLevel: vehicleData.vehicleStatus?.currentChargeLevel ?? 80,
+                status: vehicleData.vehicleStatus?.status ?? "available",
+            });
         }
-    }, [mode, vehicleData, setValue]);
+    }, [mode, vehicleData, reset]);
 
     const onSubmit = async (data: FormValues) => {
         const payload: FormValues = { ...data };
@@ -333,6 +323,23 @@ export function VehicleAdd({
                                                         {b.name}
                                                     </SelectItem>
                                                 ))}
+                                                {field.value &&
+                                                    !brands?.some(
+                                                        (b: Brand) =>
+                                                            b.id ===
+                                                            field.value
+                                                    ) && (
+                                                        <SelectItem
+                                                            key={`selected-${field.value}`}
+                                                            value={field.value}
+                                                        >
+                                                            {(vehicleData?.brand
+                                                                ?.name as
+                                                                | string
+                                                                | undefined) ??
+                                                                field.value}
+                                                        </SelectItem>
+                                                    )}
                                             </SelectContent>
                                         </Select>
                                     </FormControl>
@@ -351,6 +358,7 @@ export function VehicleAdd({
                                     <FormLabel>Model</FormLabel>
                                     <FormControl>
                                         <Select
+                                            key={models ? 'models-loaded' : 'models-loading'}
                                             value={field.value}
                                             onValueChange={field.onChange}
                                         >
