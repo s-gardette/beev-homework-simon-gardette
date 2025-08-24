@@ -1,6 +1,7 @@
-import { Card, CardContent, CardTitle, Progress } from "@/components/ui";
+import { Card, CardContent, Progress } from "@/components/ui";
 import { fetchOrThrow, titleize } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
+import { StatCard } from "./analytics";
 export function FleetStatus() {
     const { isPending, error, data } = useQuery({
         queryKey: ["fleetStatus"],
@@ -54,14 +55,13 @@ export function FleetStatus() {
                         .filter(([key]) => key !== "availabilityRate")
                         .map(([key, value]) => {
                             return (
-                                <Card key={key}>
-                                    <CardContent className="flex justify-between ">
-                                        <CardTitle>{titleize(key)}</CardTitle>
-                                        <p className="-mt-1 text-5xl font-bold">
-                                            {String(value)}
-                                        </p>
-                                    </CardContent>
-                                </Card>
+                                <StatCard
+                                    key={key}
+                                    label={titleize(
+                                        key.replace(/([A-Z])/g, " $1")
+                                    )}
+                                    value={value as string | number}
+                                />
                             );
                         })}
             </div>
