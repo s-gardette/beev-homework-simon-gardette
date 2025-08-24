@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AnalyticsController } from './analytics.controller';
 import { AnalyticsService } from './analytics.service';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import {
   BrandAnalyticsView,
   ModelEfficiencyView,
@@ -20,11 +21,15 @@ describe('AnalyticsController', () => {
     getFleetOperational: jest.fn(),
     clearCache: jest.fn(),
   };
+  const cacheMock = { clear: jest.fn() };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AnalyticsController],
-      providers: [{ provide: AnalyticsService, useValue: mockService }],
+      providers: [
+        { provide: AnalyticsService, useValue: mockService },
+        { provide: CACHE_MANAGER, useValue: cacheMock },
+      ],
     }).compile();
 
     controller = module.get<AnalyticsController>(AnalyticsController);
@@ -73,8 +78,7 @@ describe('AnalyticsController', () => {
   });
 
   it('clearCache calls cache manager clear', async () => {
-    const clearSpy = jest.spyOn(mockService, 'clearCache');
     await controller.clearCache();
-    expect(clearSpy).toHaveBeenCalled();
+    expect(cacheMock.clear).toHaveBeenCalled();
   });
 });

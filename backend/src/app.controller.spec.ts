@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { BatchService } from './batch/batch.service';
 import { VersionEntity } from './version.entity';
 
 describe('AppController', () => {
@@ -20,6 +21,10 @@ describe('AppController', () => {
         {
           provide: getRepositoryToken(VersionEntity),
           useValue: mockRepo,
+        },
+        {
+          provide: BatchService,
+          useValue: { importFromCsv: jest.fn() },
         },
         {
           provide: 'CACHE_MANAGER',

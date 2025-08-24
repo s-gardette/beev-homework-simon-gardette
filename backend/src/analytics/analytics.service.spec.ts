@@ -8,6 +8,7 @@ import {
   FleetCompositionView,
   FleetOperationalView,
 } from './analytics.entities';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 describe('AnalyticsService (unit)', () => {
   let service: AnalyticsService;
@@ -82,6 +83,6 @@ describe('AnalyticsService (unit)', () => {
   it('getFleetOperational returns results from repo', async () => {
     operationalRepo.find.mockResolvedValue([{ op: true }]);
     const res = await service.getFleetOperational();
-    expect(res).toEqual([{ op: true }]);
+    expect(res).toEqual({ op: true });
   });
 });
