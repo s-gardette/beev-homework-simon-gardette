@@ -41,20 +41,10 @@ export function VehiclesFilters({
         queryFn: () => fetchOrThrow("/api/models").then((res) => res.json()),
     });
 
-    console.log("brands", brands);
-    console.log("models", models);
-
-    // local selection state so we can filter model options by brand
     const [selectedBrands, setSelectedBrands] = React.useState<string[]>([]);
 
-    // API model shape
     type ApiModel = { name: string; Brand?: { name?: string } };
 
-    // ensure models query is typed
-    // (note: useQuery generic expected above; we can't change the hook call easily here
-    // so we'll just assert the shape when mapping below)
-
-    // Transform brands and models from API objects to string arrays
     const brandNames = React.useMemo(
         () =>
             brands?.map((brand: { name: string }) =>
@@ -63,8 +53,6 @@ export function VehiclesFilters({
         [brands]
     );
 
-    // Filter model options to only those which belong to the selected brand(s).
-    // If no brand is selected, show all models.
     const filteredModelNames = React.useMemo(() => {
         if (!models) return [] as string[];
         const typed = models as ApiModel[];
@@ -72,7 +60,6 @@ export function VehiclesFilters({
             return typed.map((m) => (m.name ?? "").toString());
         }
 
-        // Normalize selected brand names for robust comparison
         const selectedNorm = new Set(
             selectedBrands.map((s) => normalizeString(s))
         );
@@ -124,7 +111,6 @@ export function VehiclesFilters({
     if (ModelError) return "An error has occurred: " + ModelError.message;
 
     function setBrand(values: string[]) {
-        // set an array filter value; clear the filter when no values are selected
         table
             .getColumn("brand")
             ?.setFilterValue(values && values.length ? values : undefined);
@@ -152,7 +138,6 @@ export function VehiclesFilters({
             ?.setFilterValue(values && values.length ? values : undefined);
     }
 
-    // Model type options derived from ModelTypeEnum (BEV / ICE)
     const MODEL_TYPE_OPTIONS = [
         { value: ModelTypeEnum.BEV, label: "BEV" },
         { value: ModelTypeEnum.ICE, label: "ICE" },

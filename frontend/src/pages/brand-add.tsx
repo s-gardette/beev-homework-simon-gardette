@@ -37,7 +37,6 @@ export function BrandAdd({
 
     const mutation = useMutation({
         mutationFn: (data: FormValues) => {
-            // backend CreateBrandDto only expects { name } — ValidationPipe forbids unknown props
             const body = JSON.stringify({
                 name: data.name,
             });

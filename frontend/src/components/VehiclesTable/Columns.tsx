@@ -18,7 +18,6 @@ export const columns: ColumnDef<Vehicle>[] = [
     {
         id: "brand",
         accessorFn: (row) => row.brand?.name ?? "-",
-        // support array filter values from the MultiSelect component
         filterFn: (row, columnId, value) =>
             matchesArrayOrString(row.getValue(columnId), value),
         header: "Brand",
@@ -41,7 +40,6 @@ export const columns: ColumnDef<Vehicle>[] = [
     {
         id: "status",
         accessorFn: (row) => row.vehicleStatus?.status ?? "unknown",
-        // support array filter values from the MultiSelect component
         filterFn: (row, columnId, value) =>
             matchesArrayOrString(row.getValue(columnId), value),
         header: "Status",

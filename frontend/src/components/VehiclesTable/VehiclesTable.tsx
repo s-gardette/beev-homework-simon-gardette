@@ -47,9 +47,6 @@ export function VehiclesTable({ rows = 10 }: { rows?: number }) {
         queryFn: () => fetchOrThrow("/api/vehicles").then((res) => res.json()),
     });
 
-    console.log("vehicles data", data);
-
-    // local table state: filter / sort / pagination
     const [globalFilter, setGlobalFilter] = useState<string>("");
     const [sorting, setSorting] = useState<SortingState>([
         { id: "updatedAt", desc: true },

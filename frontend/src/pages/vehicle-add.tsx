@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useParams } from "react-router";
 import { fetchOrThrow, normalizeString } from "@/lib/utils";
 import { usePageContext } from "../components/layout/PageContext.tsx";
@@ -58,7 +58,6 @@ export function VehicleAdd({
     const mutation = useMutation({
         mutationFn: (data: FormValues) => {
             const body = JSON.stringify({
-                // send null when externalId is empty string so backend treats it as nullable
                 externalId:
                     data.externalId && String(data.externalId).trim() !== ""
                         ? data.externalId
@@ -162,14 +161,22 @@ export function VehicleAdd({
         );
     }, [models, brandId]);
 
+    const previousBrandIdRef = useRef<string | undefined>(undefined);
     useEffect(() => {
-        setValue("modelId", "");
+        if (!previousBrandIdRef.current) {
+            previousBrandIdRef.current = brandId;
+            return;
+        }
+
+        if (brandId && brandId !== previousBrandIdRef.current) {
+            setValue("modelId", "");
+        }
+
+        previousBrandIdRef.current = brandId;
     }, [brandId, setValue]);
 
-    // populate form when editing and vehicleData is available
     useEffect(() => {
         if (mode === "edit" && vehicleData) {
-            // vehicleData shape comes from backend; map to form fields
             setValue("externalId", vehicleData.externalId ?? "");
             setValue("name", vehicleData.name ?? "");
             setValue(
@@ -224,7 +231,6 @@ export function VehicleAdd({
             }
         }
 
-        console.log("Submitting vehicle payload:", payload);
         await mutateAsync(payload);
 
         reset({
@@ -374,6 +380,23 @@ export function VehicleAdd({
                                                         </SelectItem>
                                                     )
                                                 )}
+                                                {field.value &&
+                                                    !filteredModels?.some(
+                                                        (fm: ApiModel) =>
+                                                            fm.id ===
+                                                            field.value
+                                                    ) && (
+                                                        <SelectItem
+                                                            key={`selected-${field.value}`}
+                                                            value={field.value}
+                                                        >
+                                                            {(vehicleData?.model
+                                                                ?.name as
+                                                                | string
+                                                                | undefined) ??
+                                                                field.value}
+                                                        </SelectItem>
+                                                    )}
                                             </SelectContent>
                                         </Select>
                                     </FormControl>
