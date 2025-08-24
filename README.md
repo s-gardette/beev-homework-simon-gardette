@@ -23,9 +23,11 @@ docker compose up
 > note: There could be some inconsistencies if you run manually the
 > backend then through docker (or reverse) due to sync and migrations.
 > If so just `docker compose down -v` and relaunch. I should have
-> covered most of the casse so it shouldn't happen but i'm not used to
+> covered most of the cases so it shouldn't happen but i'm not used to
 > the way typeorm handle migrations (i've used drizzle more but wanted
-> to stay close to the provided task). (also if the site does not display at all after running the full docker and switching back to dev verify your browser does not try to serve https.)
+> to stay close to the provided task).
+
+> note 2 : Also if the site does not display at all after running the full docker and switching back to dev verify your browser does not try to serve https instead of http for localhost (Firefox for exampel tends to do thaht a lot)
 
 Now that you have started the project you could also have a glance at [my feedback](FEEDBACK-SIMON.md)
 
@@ -78,7 +80,7 @@ The application will track vehicles with the following properties:
 - Last updated (timestamp)
 - Average energy consumption (kWh/100km)
 - Type (BEV/ICE) - _BEV = Battery Electric Vehicle, ICE = Internal Combustion Engine_
-- Emission_gco2_km - _Grams of CO2 per kilometer_
+- Emission*gco2_km - \_Grams of CO2 per kilometer*
 
 **Data Source**: Seed your database using the provided `data/cars.csv` file (available in the project repository).
 
