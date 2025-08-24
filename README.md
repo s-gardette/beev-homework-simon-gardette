@@ -20,14 +20,14 @@ You can test the prod config running docker compose :
 docker compose up
 ```
 
-> note: There could be some inconsistencies if you run manually the
+> note: ⚠️ There could be some inconsistencies if you run manually the
 > backend then through docker (or reverse) due to sync and migrations.
 > If so just `docker compose down -v` and relaunch. I should have
 > covered most of the cases so it shouldn't happen but i'm not used to
 > the way typeorm handle migrations (i've used drizzle more but wanted
 > to stay close to the provided task).
 
-> note 2 : Also if the site does not display at all after running the full docker and switching back to dev verify your browser does not try to serve https instead of http for localhost (Firefox for exampel tends to do thaht a lot)
+> note 2 : ⚠️ Also if the site does not display at all after running the full docker and switching back to dev verify your browser does not try to serve https instead of http for localhost (Firefox for exampel tends to do thaht a lot)
 
 Now that you have started the project you could also have a glance at [my feedback](FEEDBACK-SIMON.md)
 
