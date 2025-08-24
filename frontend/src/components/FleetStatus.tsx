@@ -38,7 +38,7 @@ export function FleetStatus() {
     }
 
     return (
-        <div className="mb-8">
+        <div className="fleet-status mb-8">
             <div className="mb-8 flex w-full grow items-center justify-between">
                 <div className="grow">
                     <Progress

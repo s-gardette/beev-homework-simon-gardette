@@ -51,7 +51,7 @@ export function ChartArea({
     );
 
     return (
-        <Card>
+        <Card className="area-chart">
             <CardHeader>
                 <CardTitle>{title ?? "Area Chart - Gradient"}</CardTitle>
                 {bigNumber ? (

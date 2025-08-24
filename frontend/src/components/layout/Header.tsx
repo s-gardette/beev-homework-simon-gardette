@@ -13,7 +13,6 @@ import {
 export function Header() {
     type SubItem = { name: string; path: string };
     type MenuItem = { name: string; path?: string; items?: SubItem[] };
-
     const menu: MenuItem[] = [
         { name: "Dashboard", path: "/" },
         { name: "Vehicles", path: "/vehicles" },

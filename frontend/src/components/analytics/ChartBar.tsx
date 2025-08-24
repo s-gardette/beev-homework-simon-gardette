@@ -32,7 +32,7 @@ export function ChartBar({ data, description: desc, title, subtitle }: Props) {
         },
     };
     return (
-        <Card>
+        <Card className="bar-chart">
             <CardHeader>
                 <CardTitle>{title}</CardTitle>
                 <CardDescription>{subtitle}</CardDescription>
