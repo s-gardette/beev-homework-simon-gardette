@@ -15,8 +15,7 @@ export function Header() {
     type MenuItem = { name: string; path?: string; items?: SubItem[] };
 
     const menu: MenuItem[] = [
-        { name: "Home", path: "/" },
-        { name: "Dashboard", path: "/dashboard" },
+        { name: "Dashboard", path: "/" },
         { name: "Vehicles", path: "/vehicles" },
         {
             name: "Admin",
